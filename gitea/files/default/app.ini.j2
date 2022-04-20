@@ -1,0 +1,30 @@
+{%- macro render_opt(name, val) %}
+{%-   if val is boolean %}
+{%-     set rendered = val | string | lower %}
+{%-   elif val | is_list %}
+{%-     set rendered = val | join(',') %}
+{#-   some special characters might make problems, escape the value just in case #}
+{%-   elif val is string %}
+{%-     set rendered = '`{}`'.format(val) %}
+{%-   else %}
+{%-     set rendered = val | string %}
+{%-   endif %}
+{{- name | upper }} = {{ rendered }}
+{%- endmacro -%}
+
+;; This file is managed by Salt.
+;; Manual changes might be overwritten.
+
+{% for name, val in gitea.config.default.items() %}
+{{ render_opt(name, val) }}
+{%- endfor %}
+
+{%- for topic in gitea.config %}
+{%-   if 'default' != topic %}
+
+[{{ topic | lower }}]
+{%-     for name, val in gitea.config[topic].items() %}
+{{ render_opt(name, val) }}
+{%-     endfor %}
+{%-   endif %}
+{%- endfor %}

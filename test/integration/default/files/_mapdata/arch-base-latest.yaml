@@ -1,0 +1,89 @@
+# yamllint disable rule:indentation rule:line-length
+# Arch
+---
+values:
+  added_in_defaults: defaults_value
+  added_in_lookup: lookup_value
+  added_in_pillar: pillar_value
+  lookup:
+    arch: amd64
+    rootgroup: root
+    config: '/var/opt/gitea/custom/conf/app.ini'
+    service:
+      name: gitea
+    gpg:
+      key: 7C9E68152594688862D62AF62D9AE806EC1592E2
+      keyserver: keys.openpgp.org
+    group: git
+    paths:
+      bin: /opt/gitea
+      conf: /etc/opt/gitea
+      custom: /var/opt/gitea/custom
+      data: /var/opt/gitea/data
+      home: /var/opt/gitea/home
+      internal_token_uri: file:///etc/opt/gitea/internal_token
+      log: /var/opt/gitea/log
+      repos: /var/opt/gitea/data/gitea-repositories
+      work: /var/opt/gitea
+    pkg:
+      latest: https://dl.gitea.io/gitea/version.json
+      sig: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.asc
+      source: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}
+      source_hash: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.sha256
+    requirements:
+      - git
+      - gpg
+      - python-gnupg
+    shell: /bin/bash
+    user: git
+  config:
+    default:
+      app_name: Gitea
+      run_mode: prod
+      run_user: git
+    log:
+      level: Info
+      mode: console
+      stacktrace_level: None
+    repository.signing:
+      signing_key: default
+    server:
+      domain: localhost
+      http_addr: 0.0.0.0
+      http_port: 3000
+      protocol: http
+  database:
+    db_type: sqlite3
+    name: gitea
+    password: hunter1
+    user: root
+  secrets:
+    internal_token: ''
+    jwt_secret: ''
+    lfs_jwt_secret: ''
+    secret_key: ''
+  service:
+    requires_mount: []
+    wants: []
+  version: latest
+  map_jinja:
+    sources:
+    - Y:G@osarch
+    - Y:G@os_family
+    - Y:G@os
+    - Y:G@osfinger
+    - C@gitea
+    - Y:G@id
+  master: template-master
+  tofs:
+    files_switch:
+    - any/path/can/be/used/here
+    - id
+    - roles
+    - osfinger
+    - os
+    - os_family
+    source_files:
+      gitea-config-file-file-managed:
+      - example.tmpl.jinja
+  winner: pillar

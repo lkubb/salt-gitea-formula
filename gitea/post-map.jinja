@@ -1,0 +1,65 @@
+{#- -*- coding: utf-8 -*- #}
+{#- vim: ft=jinja #}
+
+{#- If latest was specified, query the official download server for the latest version. -#}
+
+{%- if 'latest' == mapdata.version -%}
+  {%- set latest = salt['http.query'](
+        mapdata.lookup.pkg.latest,
+        decode=True, decode_type='json'
+      )['dict']['latest']['version']
+  -%}
+  {%- do mapdata.update({'version': latest}) -%}
+{%- endif -%}
+
+
+{#-
+    If paths are different than default, they need to be specified in the config.
+    CUSTOM_PATH and WORKDIR are environment variables.
+    I'm not sure about `log` tbh. Per the official docs, the default is empty.
+    This might cause duplicate entries if the user did not specify in all-lowercase.
+    Also, it will not overwrite custom configuration, which might make the installation fail.
+-#}
+
+{%- for path in [
+      ('app_data_path', 'server', mapdata.lookup.paths.data, mapdata.lookup.paths.work | path_join('data')),
+      ('root_path', 'log', mapdata.lookup.paths.log, mapdata.lookup.paths.work | path_join('log')),
+      ('root', 'repository', mapdata.lookup.paths.repos, mapdata.lookup.paths.data | path_join('gitea-repositories')),
+    ] -%}
+  {%- set var, topic, current, default = path -%}
+  {%- if current != default -%}
+    {%- do mapdata | update_dict_key_value('config:' ~ topic, {var: current}) -%}
+  {%- endif -%}
+{%- endfor -%}
+
+
+{#-
+    If the secrets were not provided, get them from a grain/generate and save them there.
+    This avoids
+      a) calling the gitea binary in the app.ini template (`gitea generate secret SECRET_KEY`)
+      b) and special-casing to avoid regenerating those secrets every run.
+
+    The INTERNAL_TOKEN has a special format, but it can be configured to be read from a separate file.
+-#}
+
+{%- if not mapdata.secrets.secret_key -%}
+  {%- set secret_key = salt['grains.get_or_set_hash'](
+        'gitea_secret_key',
+        length=64,
+        chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+      )
+  -%}
+  {%- do mapdata.secrets.update({'secret_key': secret_key}) -%}
+{%- endif -%}
+
+{%- for jwt in ['jwt_secret', 'lfs_jwt_secret'] -%}
+  {%- if not mapdata.secrets[jwt] -%}
+    {%- set secret = salt['grains.get_or_set_hash'](
+          'gitea_' ~ jwt ,
+          length=43,
+          chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-',
+        )
+    -%}
+    {%- do mapdata.secrets.update({jwt: secret}) -%}
+  {%- endif -%}
+{%- endfor -%}

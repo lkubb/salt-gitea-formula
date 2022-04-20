@@ -1,0 +1,24 @@
+;; Global Gitea configuration managed by salt state.
+;; These values are necessary to skip the web installer.
+
+[database]
+{%- for conf, val in gitea.database.items() %}
+{{ conf | upper }} = {{ val if conf | upper != 'PASSWD' else '`{}`'.format(val) }}
+{%- endfor %}
+
+{#- The following secrets are guaranteed to be set by `post-map.jinja`. #}
+
+[oauth2]
+JWT_SECRET = {{ gitea.secrets.jwt_secret }}
+
+[security]
+INSTALL_LOCK = true
+{%- if gitea.secrets.internal_token %}
+INTERNAL_TOKEN = {{ gitea.secrets.internal_token }}
+{%- else %}
+INTERNAL_TOKEN_URI = {{ gitea.lookup.paths.internal_token_uri }}
+{%- endif %}
+SECRET_KEY = {{ gitea.secrets.secret_key }}
+
+[server]
+LFS_JWT_SECRET = {{ gitea.secrets.lfs_jwt_secret }}

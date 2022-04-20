@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set default values.
+---
+values:
+  lookup:
+    rootgroup: root
+    service:
+      name: gitea
+      unit: /etc/systemd/system/{name}.service
+    gpg:
+      key: 7C9E68152594688862D62AF62D9AE806EC1592E2
+      keyserver: keys.openpgp.org
+    group: git
+    paths:
+      bin: /opt/gitea
+      conf: /etc/opt/gitea
+      custom: /var/opt/gitea/custom
+      data: /var/opt/gitea/data
+      home: /var/opt/gitea/home
+      internal_token_uri: file:///etc/opt/gitea/internal_token
+      log: /var/opt/gitea/log
+      repos: /var/opt/gitea/data/gitea-repositories
+      work: /var/opt/gitea
+    pkg:
+      latest: https://dl.gitea.io/gitea/version.json
+      sig: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.asc
+      source: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}
+      source_hash: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.sha256  # yamllint disable-line rule:line-length
+    requirements:
+      - git
+      - gpg
+      - python-gnupg
+    shell: /bin/bash
+    user: git
+  config:
+    default:
+      app_name: Gitea
+      run_mode: prod
+      run_user: git
+    log:
+      level: Info
+      mode: console
+      stacktrace_level: None
+    repository.signing:
+      signing_key: default
+    server:
+      domain: localhost
+      http_addr: 0.0.0.0
+      http_port: 3000
+      protocol: http
+  database:
+    db_type: sqlite3
+    name: gitea
+    password: hunter1
+    user: root
+  secrets:
+    internal_token: ''
+    jwt_secret: ''
+    lfs_jwt_secret: ''
+    secret_key: ''
+  service:
+    requires_mount: []
+    wants: []
+  version: latest
+  # Just here for testing
+  added_in_defaults: defaults_value
+  winner: defaults
+...
