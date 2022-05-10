@@ -36,6 +36,11 @@ gitea:
     shell: /bin/bash
     user: git
   config:
+    database:
+      db_type: sqlite3
+      name: gitea
+      password: hunter1
+      user: root
     default:
       app_name: Gitea
       run_mode: prod
@@ -44,23 +49,19 @@ gitea:
       level: Info
       mode: console
       stacktrace_level: None
+    oauth2:
+      jwt_secret: ''
     repository.signing:
       signing_key: default
+    security:
+      internal_token: ''
+      secret_key: ''
     server:
       domain: localhost
       http_addr: 0.0.0.0
       http_port: 3000
+      lfs_jwt_secret: ''
       protocol: http
-  database:
-    db_type: sqlite3
-    name: gitea
-    password: hunter1
-    user: root
-  secrets:
-    internal_token: ''
-    jwt_secret: ''
-    lfs_jwt_secret: ''
-    secret_key: ''
   service:
     requires_mount: []
     socket_activation: false

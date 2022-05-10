@@ -12,6 +12,8 @@ gitea-config-clean-file-absent:
   file.absent:
     - names:
       - {{ gitea.lookup.paths.conf | path_join('app.ini') }}
-      - {{ gitea.lookup.paths.custom | path_join('conf', 'app.ini') }}
+{%- if gitea._generate_token %}
+      - {{ gitea.lookup.paths.internal_token_uri[7:] }}
+{%- endif %}
     - require:
       - sls: {{ sls_service_clean }}

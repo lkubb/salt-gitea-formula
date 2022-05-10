@@ -9,27 +9,9 @@
 include:
   - {{ sls_package_install }}
 
-# Since this formula does not rely on the web installer,
-# the global configuration should include:
-#   - database configuration
-#   - secrets
-# Otherwise, gitea would not run at all.
-Required Gitea config is setup:
-  file.managed:
-    - name: {{ gitea.lookup.paths.conf | path_join('app.ini') }}
-    - source: {{ files_switch(['etc/app.ini.j2'],
-                              lookup='Required Gitea config is setup'
-                 )
-              }}
-    - template: jinja
-    - mode: '0640'
-    - user: root
-    - group: {{ gitea.lookup.group }}
-    - require:
-      - sls: {{ sls_package_install }}
-    - context:
-        gitea: {{ gitea | json }}
-{%- if not gitea.secrets.internal_token and 'file://' == gitea.lookup.paths.internal_token_uri[:7] %}
+{%- if gitea._generate_token %}
+
+Gitea internal token file is generated:
   # gitea complained about permissions with mode = 640, root:git ownership
   cmd.run:
     - name: >
@@ -41,20 +23,21 @@ Required Gitea config is setup:
       - sls: {{ sls_package_install }}
 {%- endif %}
 
-gitea-config-file-file-managed:
+Gitea config is setup:
   file.managed:
-    - name: {{ gitea.lookup.paths.custom | path_join('conf', 'app.ini') }}
+    - name: {{ gitea.lookup.paths.conf | path_join('app.ini') }}
     - source: {{ files_switch(['app.ini.j2'],
-                              lookup='gitea-config-file-file-managed'
+                              lookup='Gitea config is setup'
                  )
               }}
-    - mode: '0640'
-    - makedirs: true
-    - dir_mode: '0750'
-    - user: {{ gitea.lookup.user }}
-    - group: {{ gitea.lookup.group }}
     - template: jinja
+    - mode: '0640'
+    - user: root
+    - group: {{ gitea.lookup.group }}
     - require:
       - sls: {{ sls_package_install }}
+{%- if gitea._generate_token %}
+      - Gitea internal token file is generated
+{%- endif %}
     - context:
         gitea: {{ gitea | json }}

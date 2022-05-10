@@ -58,34 +58,36 @@
       },
       "_settings": {
         "version": "latest",
-        "database": {
-          "db_type": "sqlite3",
-          "name": "gitea",
-          "user": "root",
-          "password": "hunter1"
-        },
-        "secrets": {
-          "internal_token": "",
-          "jwt_secret": "",
-          "lfs_jwt_secret": "",
-          "secret_key": ""
-        },
         "service": {
           "requires_mount": [],
           "socket_activation": false,
           "wants": []
         },
         "config": {
+          "database": {
+            "db_type": "sqlite3",
+            "name": "gitea",
+            "user": "root",
+            "password": "hunter1"
+          },
           "default": {
             "app_name": "Gitea",
             "run_user": "git",
             "run_mode": "prod"
           },
+          "oauth2": {
+            "jwt_secret": ""
+          },
+          "security": {
+            "internal_token": "",
+            "secret_key": ""
+          },
           "server": {
             "protocol": "http",
             "domain": "localhost",
             "http_addr": "0.0.0.0",
-            "http_port": 3000
+            "http_port": 3000,
+            "lfs_jwt_secret": ""
           },
           "log": {
             "mode": "console",

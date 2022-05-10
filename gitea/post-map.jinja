@@ -47,29 +47,42 @@
       b) and special-casing to avoid regenerating those secrets every run.
 
     The INTERNAL_TOKEN has a special format, but it can be configured to be read from a separate file.
+
+    "." is used in place of ":" to avoid libmapstack automap. @TODO sensible to indulge in that magic?
 -#}
 
-{%- if not mapdata.secrets.secret_key -%}
+{%- if not mapdata.config | traverse("security:secret_key", "") -%}
   {%- set secret_key = salt['grains.get_or_set_hash'](
-        'gitea_secret_key',
+        'gitea.config.security.secret_key',
         length=64,
         chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
       )
   -%}
-  {%- do mapdata.secrets.update({'secret_key': secret_key}) -%}
+  {%- do mapdata.config | update_dict_key_value("security", {"secret_key": secret_key}) -%}
 {%- endif -%}
 
-{%- for jwt in ['jwt_secret', 'lfs_jwt_secret'] -%}
-  {%- if not mapdata.secrets[jwt] -%}
+{%- for jwt in ['oauth2:jwt_secret', 'server:lfs_jwt_secret'] -%}
+  {%- if not mapdata.config | traverse(jwt, "") -%}
     {%- set secret = salt['grains.get_or_set_hash'](
-          'gitea_' ~ jwt ,
+          'gitea.config.' ~ jwt | replace(":", "."),
           length=43,
           chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-',
         )
     -%}
-    {%- do mapdata.secrets.update({jwt: secret}) -%}
+    {%- do mapdata.config | update_dict_key_value(jwt.split(":")[0], {jwt.split(":")[1]: secret}) -%}
   {%- endif -%}
 {%- endfor -%}
+
+{%- do mapdata.update({"_generate_token": false}) -%}
+{%- if not mapdata.config | traverse("security:internal_token") -%}
+  {%- do mapdata.config | update_dict_key_value("security", {"internal_token_uri": mapdata.lookup.paths.internal_token_uri}) -%}
+  {%- if 'file://' == mapdata.lookup.paths.internal_token_uri[:7] -%}
+    {%- do mapdata.update({"_generate_token": true}) -%}
+  {%- endif %}
+{%- endif -%}
+
+{%- do mapdata.config | update_dict_key_value("security", {"install_lock": true}) -%}
+
 
 {#-
     Automatically configure the socket path to use the one provided by Systemd.
@@ -78,6 +91,7 @@
 {%- if "unix" in mapdata.config | traverse("server:protocol", "") -%}
   {%- do mapdata.config.server.update({"http_addr": "/run/gitea/gitea.socket"}) -%}
 {%- endif -%}
+
 
 {#-
     Automatically configure basic service dependencies.
