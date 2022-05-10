@@ -30,11 +30,15 @@ gitea:
 
     # Service configuration allows to request mount paths or
     # other service units. This is especially important if you
-    # run a local database server. Example: If you run mariadb
-    # on localhost, specify wants: ['mariadb'] (or however the
-    # unit is called, without `.service` suffix).
+    # run Memcached/Redis. For databases, `post-map.jinja` appends
+    # the database type automatically.
+    # Example: If you run Redis on localhost, specify
+    # wants: ['redis'] (or however the unit is called, without `.service` suffix).
   service:
     requires_mount: []
+      # This is intended to setup socket activation. It is currently a draft
+      # and not functional.
+    socket_activation: false
     wants: []
 
     # This is the custom configuration. Values in `default` are dumped
@@ -72,14 +76,14 @@ gitea:
     group: git
     paths:
       bin: /opt/gitea
-      conf: /etc/opt/gitea
-      custom: /var/opt/gitea/custom
-      data: /var/opt/gitea/data
-      home: /var/opt/gitea/home
-      internal_token_uri: file:///etc/opt/gitea/internal_token
-      log: /var/opt/gitea/log
-      repos: /var/opt/gitea/data/gitea-repositories
-      work: /var/opt/gitea
+      conf: /etc/gitea
+      custom: /var/lib/gitea/custom
+      data: /var/lib/gitea/data
+      home: /var/lib/gitea/home
+      internal_token_uri: file:///etc/gitea/internal_token
+      log: /var/log/gitea
+      repos: /var/lib/gitea/data/gitea-repositories
+      work: /var/lib/gitea
     pkg:
       latest: https://dl.gitea.io/gitea/version.json
       sig: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.asc

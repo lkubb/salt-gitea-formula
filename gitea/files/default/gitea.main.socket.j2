@@ -1,0 +1,20 @@
+{%- if "unix" in gitea.config | traverse("server:protocol", "http") -%}
+{%-   set stream = gitea.config | traverse("server:http_addr", "/run/gitea/gitea.socket") -%}
+{%- else -%}
+{%-   set stream = gitea.config | traverse("server:http_port", "3000") -%}
+{%-   if gitea.config | traverse("server:http_addr", "") -%}
+{%-     set stream = gitea.config.server.http_addr ~ ":" ~ stream -%}
+{%-   endif -%}
+{%- endif -%}
+
+[Unit]
+Description=Gitea Web Socket
+PartOf={{ gitea.lookup.service.name }}.service
+
+[Socket]
+Service={{ gitea.lookup.service.name }}.service
+ListenStream={{ stream }}
+NoDelay=true
+
+[Install]
+WantedBy=sockets.target

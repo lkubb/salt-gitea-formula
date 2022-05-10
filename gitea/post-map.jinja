@@ -14,12 +14,15 @@
 
 
 {#-
-    If paths are different than default, they need to be specified in the config.
+    If paths are different than default, they need to be specified in the config and the service
+    needs to grant read/write permissions.
     CUSTOM_PATH and WORKDIR are environment variables.
     I'm not sure about `log` tbh. Per the official docs, the default is empty.
     This might cause duplicate entries if the user did not specify in all-lowercase.
     Also, it will not overwrite custom configuration, which might make the installation fail.
 -#}
+
+{%- do mapdata.update({"_rw": []}) -%}
 
 {%- for path in [
       ('app_data_path', 'server', mapdata.lookup.paths.data, mapdata.lookup.paths.work | path_join('data')),
@@ -29,6 +32,10 @@
   {%- set var, topic, current, default = path -%}
   {%- if current != default -%}
     {%- do mapdata | update_dict_key_value('config:' ~ topic, {var: current}) -%}
+    {#- log directory is handled in service template -#}
+    {%- if topic != 'log' -%}
+      {%- do mapdata._rw.append(current) -%}
+    {%- endif -%}
   {%- endif -%}
 {%- endfor -%}
 
@@ -63,3 +70,25 @@
     {%- do mapdata.secrets.update({jwt: secret}) -%}
   {%- endif -%}
 {%- endfor -%}
+
+{#-
+    Automatically configure the socket path to use the one provided by Systemd.
+-#}
+
+{%- if "unix" in mapdata.config | traverse("server:protocol", "") -%}
+  {%- do mapdata.config.server.update({"http_addr": "/run/gitea/gitea.socket"}) -%}
+{%- endif -%}
+
+{#-
+    Automatically configure basic service dependencies.
+    Memcached/Redis are not as easy to discover (multiple settings)
+    and therefore need to be provided manually.
+-#}
+
+{%- if mapdata.config | traverse("database:db_type", "mysql") in ["mysql", "postgres", "mssql"] -%}
+  {%- set db_type = mapdata.config | traverse("database:db_type", "mysql") -%}
+  {%- if db_type not in mapdata.service.wants -%}
+    {#- MariaDB usually provides `mysql.service` as well. -#}
+    {%- do mapdata.service.wants.append(db_type) -%}
+  {%- endif -%}
+{%- endif -%}

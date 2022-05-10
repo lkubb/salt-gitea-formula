@@ -3,7 +3,7 @@
 control 'gitea.config.file' do
   title 'Verify the configuration file'
 
-  describe file('/var/opt/gitea/custom/conf/app.ini') do
+  describe file('/etc/gitea/app.ini') do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }

@@ -7,7 +7,7 @@ gitea:
     # Just for testing purposes
     winner: lookup
     added_in_lookup: lookup_value
-    config: '/var/opt/gitea/custom/conf/app.ini'
+    config: '/etc/gitea/app.ini'
     service:
       name: gitea
     gpg:
@@ -16,14 +16,14 @@ gitea:
     group: git
     paths:
       bin: /opt/gitea
-      conf: /etc/opt/gitea
-      custom: /var/opt/gitea/custom
-      data: /var/opt/gitea/data
-      home: /var/opt/gitea/home
-      internal_token_uri: file:///etc/opt/gitea/internal_token
-      log: /var/opt/gitea/log
-      repos: /var/opt/gitea/data/gitea-repositories
-      work: /var/opt/gitea
+      conf: /etc/gitea
+      custom: /var/lib/gitea/custom
+      data: /var/lib/gitea/data
+      home: /var/lib/gitea/home
+      internal_token_uri: file:///etc/gitea/internal_token
+      log: /var/log/gitea
+      repos: /var/lib/gitea/data/gitea-repositories
+      work: /var/lib/gitea
     pkg:
       latest: https://dl.gitea.io/gitea/version.json
       sig: https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.asc
@@ -63,6 +63,7 @@ gitea:
     secret_key: ''
   service:
     requires_mount: []
+    socket_activation: false
     wants: []
   version: latest
 
