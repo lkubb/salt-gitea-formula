@@ -8,8 +8,7 @@
 Gitea user/group is present:
   user.present:
     - name: {{ gitea.lookup.user }}
-    - home: {{ gitea.lookup.paths.home }}
-    - createhome: true  # does not work on Windows/MacOS
+    - home: {{ gitea.lookup.paths.work }}
     - shell: {{ gitea.lookup.shell }}
     - empty_password: true
     - fullname: Git Version Control

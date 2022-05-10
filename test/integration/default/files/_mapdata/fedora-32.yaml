@@ -20,7 +20,6 @@ values:
       conf: /etc/gitea
       custom: /var/lib/gitea/custom
       data: /var/lib/gitea/data
-      home: /var/lib/gitea/home
       internal_token_uri: file:///etc/gitea/internal_token
       log: /var/log/gitea
       repos: /var/lib/gitea/data/gitea-repositories
