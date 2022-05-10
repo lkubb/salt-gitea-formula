@@ -64,10 +64,7 @@
         },
         "config": {
           "database": {
-            "db_type": "sqlite3",
-            "name": "gitea",
-            "user": "root",
-            "password": "hunter1"
+            "db_type": "sqlite3"
           },
           "default": {
             "app_name": "Gitea",

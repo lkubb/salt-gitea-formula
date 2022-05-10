@@ -32,9 +32,6 @@ gitea:
       # an example.
     database:
       db_type: sqlite3
-      name: gitea
-      password: hunter1
-      user: root
 
       # Values in `default` are dumped without an associated scope.
     default:

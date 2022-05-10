@@ -37,9 +37,6 @@ gitea:
   config:
     database:
       db_type: sqlite3
-      name: gitea
-      password: hunter1
-      user: root
     default:
       app_name: Gitea
       run_mode: prod
