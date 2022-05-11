@@ -11,10 +11,26 @@ values:
     config: '/etc/gitea/app.ini'
     service:
       name: gitea
+    build_user: giteabuild
+    build_user_home: /home/giteabuild
+    go:
+      pkg: https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+      source_hash: e54bec97a1a5d230fc2f9ad0880fcbabb5888f30ed9666eca4a91c5a32e86cbc
     gpg:
       key: 7C9E68152594688862D62AF62D9AE806EC1592E2
       keyserver: keys.openpgp.org
     group: git
+    mod_rst:
+      chroma_bin: /opt/chroma/chroma
+      chroma_build_path: /opt/chroma/src
+      chroma_repo: https://github.com/alecthomas/chroma
+      chroma_rev: HEAD
+      path: /usr/local/bin/grst
+      pip_dependencies:
+        - docutils
+      pkg_dependencies:
+        - python3
+        - python3-pip
     paths:
       bin: /opt/gitea
       conf: /etc/gitea

@@ -41,6 +41,8 @@
           "gpg",
           "python-gnupg"
         ],
+        "build_user": "giteabuild",
+        "build_user_home": "/home/giteabuild",
         "shell": "/bin/bash",
         "user": "git",
         "group": "git",
@@ -53,6 +55,24 @@
           "sig": "https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.asc",
           "source": "https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}",
           "source_hash": "https://dl.gitea.io/gitea/{version}/gitea-{version}-linux-{arch}.sha256"
+        },
+        "go": {
+          "pkg": "https://go.dev/dl/go1.18.2.linux-amd64.tar.gz",
+          "source_hash": "e54bec97a1a5d230fc2f9ad0880fcbabb5888f30ed9666eca4a91c5a32e86cbc"
+        },
+        "mod_rst": {
+          "pip_dependencies": [
+            "docutils"
+          ],
+          "pkg_dependencies": [
+            "python3",
+            "python3-pip"
+          ],
+          "chroma_repo": "https://github.com/alecthomas/chroma",
+          "chroma_build_path": "/opt/chroma/src",
+          "chroma_bin": "/opt/chroma/chroma",
+          "chroma_rev": "HEAD",
+          "path": "/usr/local/bin/grst"
         }
       },
       "_settings": {

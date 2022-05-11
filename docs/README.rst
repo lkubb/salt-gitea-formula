@@ -50,6 +50,26 @@ Special notes
 * If Gitea requires mounts for some of the paths, you can specify them in ``service:requires_mount`` as a list.
 * If Gitea requires a local service unit (e.g. database server), specify it/them in ``service:wants`` as a list.
 
+RST mod
+^^^^^^^
+This formula provides basic support for installing an external ``rst`` renderer. This especially makes Gitea display ``README.rst`` files similar to as it does for ``README.md``.
+
+The installation is not included by default, you will have to specifically target ``gitea.mods.rst`` to the minion. Furthermore, you will have to setup the external renderer in your ``app.ini`` similar to:
+
+.. code-block:: yaml
+
+  markup.restructuredtext:
+    enabled: true
+    file_extensions: '.rst'
+    render_command: timeout 30s /usr/local/bin/grst
+    is_input_file: true
+  markup.sanitizer.restructuredtext:
+    element: pre
+    allow_attr: class
+    regexp: ''
+
+The mod compiles ``chroma`` (the syntax highlighting library that is used by Gitea) from source and installs a Python script that renders RST files, which currently relies on ``chroma`` and the ``docutils`` python package. The parameters can be modified in ``gitea:lookup:mod_rst``. I currently use this to patch ``*.sls``, ``*.jinja`` and ``*.j2`` highlighting into ``chroma``.
+
 Configuration
 -------------
 An example pillar is provided, please see `pillar.example`. Note that you do not need to specify everything by pillar. Often, it's much easier and less resource-heavy to use the ``parameters/<grain>/<value>.yaml`` files for non-sensitive settings. The underlying logic is explained in `map.jinja`.
