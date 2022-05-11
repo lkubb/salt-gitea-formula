@@ -101,7 +101,7 @@
 
 {%- if mapdata.config | traverse("database:db_type", "mysql") in ["mysql", "postgres", "mssql"] -%}
   {%- set db_type = mapdata.config | traverse("database:db_type", "mysql") -%}
-  {%- if db_type not in mapdata.service.wants -%}
+  {%- if db_type not in mapdata.service.wants and salt["service.available"](db_type) -%}
     {#- MariaDB usually provides `mysql.service` as well. -#}
     {%- do mapdata.service.wants.append(db_type) -%}
   {%- endif -%}
