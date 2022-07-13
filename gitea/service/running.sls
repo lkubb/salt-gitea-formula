@@ -14,3 +14,4 @@ gitea-service-running-service-running:
     - enable: True
     - watch:
       - sls: {{ sls_config_file }}
+      - Gitea binary is installed
