@@ -48,7 +48,7 @@ Gitea is available:
 
 Gitea GPG key is present (received from keyserver):
   gpg.present:
-    - name: {{ gitea.lookup.gpg.key }}
+    - name: {{ gitea.lookup.gpg.key[:-16] }}
     - keyserver: {{ gitea.lookup.gpg.keyserver }}
 
 Gitea GPG key is present (fallback):
@@ -65,16 +65,43 @@ Gitea GPG key is present (fallback):
     - require:
       - file: /tmp/gitea-key.asc
 
-Gitea is verified:
+{%- if "gpg.verified" not in salt %}
+
+# Ensure the following does not run without the key being present.
+# The official gpg modules are currently big liars and always report
+# `Yup, no worries! Everything is fine.`
+Gitea key is actually present:
   module.run:
-    - gpg.verify:
-      - filename: /tmp/gitea-{{ gitea.version }}
-      - signature: /tmp/gitea-{{ gitea.version }}.asc
+    - gpg.get_key:
+      - fingerprint: {{ gitea.lookup.gpg.key }}
+{%- endif %}
+
+
+{%- if "gpg.verified" not in salt %}
+
+Gitea is verified:
+  test.configurable_test_state:
+    - name: Check if the downloaded binary has been signed by the release key
+    - changes: False
+    - result: >
+        __slot__:salt:gpg.verify(filename=/tmp/gitea-{{ gitea.version }},
+        signature=/tmp/gitea-{{ gitea.version }}.asc).res
+    - require:
+      - Gitea is available
+      - Gitea key is actually present
+{%- else %}
+
+Gitea is verified:
+  gpg.verified:
+    - name: /tmp/gitea-{{ gitea.version }}
+    - signature: /tmp/gitea-{{ gitea.version }}.asc
+    - signed_by_any: {{ gitea.lookup.gpg.key }}
     - require:
       - Gitea is available
     - require_any:
       - Gitea GPG key is present (received from keyserver)
       - Gitea GPG key is present (fallback)
+{%- endif %}
 
 Gitea binary is absent if verification failed:
   file.absent:
