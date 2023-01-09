@@ -48,7 +48,7 @@ Gitea is available:
 
 Gitea GPG key is present (received from keyserver):
   gpg.present:
-    - name: {{ gitea.lookup.gpg.key[:-16] }}
+    - name: {{ gitea.lookup.gpg.key[-16:] }}
     - keyserver: {{ gitea.lookup.gpg.keyserver }}
 
 Gitea GPG key is present (fallback):
