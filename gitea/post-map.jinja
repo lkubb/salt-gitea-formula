@@ -53,34 +53,34 @@
 -#}
 
 {%- set current_cached = {} -%}
-{%- set cache_updated = false -%}
+{%- set cache_updated = [] -%}
 {%- set cache_file = mapdata.lookup.paths.conf | path_join(".saltcache.yml") -%}
 {%- if salt["file.file_exists"](cache_file) -%}
-  {%- set current_cached = salt["jinja.import_yaml"](cache_file) -%}
+  {%- do current_cached.update(salt["jinja.import_yaml"](cache_file)) -%}
 {%- else -%}
   {%- do salt["file.mkdir"](mapdata.lookup.paths.conf) -%}
 {%- endif -%}
 {%- for var, val in current_cached.items() -%}
-  {%- do mapdata.config | set_dict_key_value(var, val) -%}
+  {%- do mapdata | set_dict_key_value(var, val) -%}
 {%- endfor -%}
-{%- if not mapdata.config | traverse("security:secret_key", "") -%}
-  {%- do current_cached.update({"security:secret_key": salt["random.get_str"](64, punctuation=false)}) -%}
-  {%- set cache_updated = true -%}
+{%- if not mapdata | traverse("config:security:secret_key", "") -%}
+  {%- do current_cached.update({"config:security:secret_key": salt["random.get_str"](64, punctuation=false)}) -%}
+  {%- do cache_updated.append(true) -%}
 {%- endif -%}
 
-{%- for jwt in ["oauth2:jwt_secret", "server:lfs_jwt_secret"] -%}
-  {%- if not mapdata.config | traverse(jwt, "") -%}
+{%- for jwt in ["config:oauth2:jwt_secret", "config:server:lfs_jwt_secret"] -%}
+  {%- if not mapdata | traverse(jwt, "") -%}
     {%- do current_cached.update({jwt: salt["random.get_str"](43, chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")}) -%}
-    {%- set cache_updated = true -%}
+    {%- do cache_updated.append(true) -%}
   {%- endif -%}
 {%- endfor -%}
 
 {%- if cache_updated -%}
   {%- for var, val in current_cached.items() -%}
-    {%- do mapdata.config | set_dict_key_value(var, val) -%}
+    {%- do mapdata | set_dict_key_value(var, val) -%}
   {%- endfor -%}
-  {%- do salt["file.write"](cache_file, salt["slsutil.serializer"]("yaml", current_cached)) -%}
-  {%- do salt["file.set_mode"]("0600") -%}
+  {%- do salt["file.write"](cache_file, salt["slsutil.serialize"]("yaml", current_cached)) -%}
+  {%- do salt["file.set_mode"](cache_file, "0600") -%}
 {%- endif -%}
 
 {%- do mapdata.update({"_generate_token": false}) -%}
