@@ -65,7 +65,7 @@ Gitea GPG key is present (fallback):
     - require:
       - file: /tmp/gitea-key.asc
 
-{%- if "gpg.verified" not in salt %}
+{%- if "gpg" not in salt["saltutil.list_extmods"]().get("states", []) %}
 
 # Ensure the following does not run without the key being present.
 # The official gpg modules are currently big liars and always report
@@ -77,7 +77,7 @@ Gitea key is actually present:
 {%- endif %}
 
 
-{%- if "gpg.verified" not in salt %}
+{%- if "gpg" not in salt["saltutil.list_extmods"]().get("states", []) %}
 
 Gitea is verified:
   test.configurable_test_state:
