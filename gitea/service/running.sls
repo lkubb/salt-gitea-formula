@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
 {%- set tplroot = tpldir.split('/')[0] %}
@@ -8,7 +7,7 @@
 include:
   - {{ sls_config_file }}
 
-gitea-service-running-service-running:
+Gitea is running:
   service.running:
     - name: {{ gitea.lookup.service.name }}
     - enable: True

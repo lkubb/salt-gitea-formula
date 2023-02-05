@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
 {%- set tplroot = tpldir.split('/')[0] %}
@@ -23,11 +22,11 @@ Gitea internal token file is generated:
       - sls: {{ sls_package_install }}
 {%- endif %}
 
-Gitea config is setup:
+Gitea configuration is managed:
   file.managed:
-    - name: {{ gitea.lookup.paths.conf | path_join('app.ini') }}
-    - source: {{ files_switch(['app.ini.j2'],
-                              lookup='Gitea config is setup'
+    - name: {{ gitea.lookup.paths.conf | path_join("app.ini") }}
+    - source: {{ files_switch(["app.ini", "app.ini.j2"],
+                              lookup="Gitea configuration is managed"
                  )
               }}
     - template: jinja

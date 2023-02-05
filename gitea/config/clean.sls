@@ -1,5 +1,9 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
+
+{#-
+    This state will remove the configuration of the gitea service and has a
+    dependency on ``gitea.service.clean`` via include list.
+#}
 
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_service_clean = tplroot ~ '.service.clean' %}
@@ -8,7 +12,7 @@
 include:
   - {{ sls_service_clean }}
 
-gitea-config-clean-file-absent:
+Gitea configuration is absent:
   file.absent:
     - names:
       - {{ gitea.lookup.paths.conf | path_join("app.ini") }}
