@@ -1,11 +1,11 @@
 # vim: ft=sls
 
 {#-
-  *Meta-state*.
+    *Meta-state*.
 
-  This installs Gitea,
-  manages its configuration
-  and then starts the ``gitea`` service.
+    This installs Gitea,
+    manages its configuration
+    and then starts the ``gitea`` service.
 #}
 
 include:
