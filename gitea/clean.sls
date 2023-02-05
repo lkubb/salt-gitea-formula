@@ -3,7 +3,7 @@
 {#-
     *Meta-state*.
 
-    This state will undo everything performed in the ``gitea`` meta-state
+    Undoes everything performed in the ``gitea`` meta-state
     in reverse order, i.e.
     stops the service,
     removes the configuration file and then

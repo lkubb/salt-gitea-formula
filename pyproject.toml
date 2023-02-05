@@ -28,6 +28,7 @@ The following states are found in this formula:
 """
 main_heading_char = "-"
 sub_heading_char = "^"
+literal_sub_heading = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

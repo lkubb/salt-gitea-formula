@@ -54,7 +54,8 @@ always_include_default_description = false
 main_heading_char = "="
   # Character to use to underline sub headings
 sub_heading_char = "^"
-"""
+  # Make state IDs literal – ``state.id`` instead of state.id
+literal_sub_heading = false
   # File to write to
 target = "docs/states.rst"
 
@@ -294,6 +295,7 @@ The following states are found in {where}:
         "default_header": "Available States",
         "main_heading_char": "=",
         "sub_heading_char": "-",
+        "literal_sub_heading": False,
     }
 
     def __init__(self, target="docs", prefix=None, basedir=base_dir, opts=None):
@@ -324,6 +326,8 @@ The following states are found in {where}:
         """
         Convenience method to write a subheading
         """
+        if self.opts["literal_sub_heading"]:
+            text = f"``{text}``"
         self._write(text)
         self._write((uline or self.opts["sub_heading_char"]) * len(text))
 
