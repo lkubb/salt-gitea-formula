@@ -1,5 +1,8 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
+
+{#-
+    Removes the build user and Go installation.
+#}
 
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_config_file = tplroot ~ '.config.file' %}

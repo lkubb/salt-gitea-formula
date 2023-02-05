@@ -1,8 +1,8 @@
 # vim: ft=sls
 
 {#-
-    This state will start the gitea service
-    and has a dependency on ``gitea.config`` via include list.
+    Starts the Gitea service and enables it at boot time.
+    Has a dependency on `gitea.config`_.
 #}
 
 include:

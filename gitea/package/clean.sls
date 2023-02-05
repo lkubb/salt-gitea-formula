@@ -1,8 +1,8 @@
 # vim: ft=sls
 
 {#-
-    This state will remove the gitea package and has a depency on
-    ``gitea.config.clean`` via include list.
+    Removes Gitea.
+    Has a dependency on `gitea.config.clean`_.
 #}
 
 {%- set tplroot = tpldir.split('/')[0] %}

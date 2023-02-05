@@ -1,7 +1,7 @@
 # vim: ft=sls
 
 {#-
-    This state will stop the gitea service and disable it at boot time.
+    Stops the gitea service and disables it at boot time.
 #}
 
 {%- set tplroot = tpldir.split('/')[0] %}

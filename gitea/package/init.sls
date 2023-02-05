@@ -1,7 +1,10 @@
 # vim: ft=sls
 
 {#-
-    This state will install the gitea package only.
+    Installs Gitea only.
+
+    Releases are downloaded from the official server by default
+    and their signatures verified.
 #}
 
 include:

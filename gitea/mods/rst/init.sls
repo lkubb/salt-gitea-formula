@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
+{#-
+    Compiles `Chroma <https://github.com/alecthomas/chroma>`_ from source
+    and installs a Python script that can be setup as an external renderer
+    for ``*.rst`` files.
+
+    Has a dependency on `gitea.go`_.
+#}
+
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_config_file = tplroot ~ '.config.file' %}
 {%- set sls_go_install = tplroot ~ '.go' %}

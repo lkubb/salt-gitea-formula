@@ -69,6 +69,7 @@ The installation is not included by default, you will have to specifically targe
 
 The mod compiles ``chroma`` (the syntax highlighting library that is used by Gitea) from source and installs a Python script that renders RST files, which currently relies on ``chroma`` and the ``docutils`` python package. The parameters can be modified in ``gitea:lookup:mod_rst``. I currently use this to patch ``*.sls``, ``*.jinja`` and ``*.j2`` highlighting into ``chroma``.
 
+
 Configuration
 -------------
 An example pillar is provided, please see `pillar.example`. Note that you do not need to specify everything by pillar. Often, it's much easier and less resource-heavy to use the ``parameters/<grain>/<value>.yaml`` files for non-sensitive settings. The underlying logic is explained in `map.jinja`.

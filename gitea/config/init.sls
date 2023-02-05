@@ -1,8 +1,8 @@
 # vim: ft=sls
 
 {#-
-    This state will configure the gitea service
-    and has a dependency on ``gitea.install`` via include list.
+    Manages Gitea configuration.
+    Has a dependency on `gitea.package`_.
 #}
 
 include:

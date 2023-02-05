@@ -69,6 +69,7 @@ The installation is not included by default, you will have to specifically targe
 
 The mod compiles ``chroma`` (the syntax highlighting library that is used by Gitea) from source and installs a Python script that renders RST files, which currently relies on ``chroma`` and the ``docutils`` python package. The parameters can be modified in ``gitea:lookup:mod_rst``. I currently use this to patch ``*.sls``, ``*.jinja`` and ``*.j2`` highlighting into ``chroma``.
 
+
 Configuration
 -------------
 An example pillar is provided, please see `pillar.example`. Note that you do not need to specify everything by pillar. Often, it's much easier and less resource-heavy to use the ``parameters/<grain>/<value>.yaml`` files for non-sensitive settings. The underlying logic is explained in `map.jinja`.
@@ -87,36 +88,44 @@ gitea
 ^^^^^
 *Meta-state*.
 
-This installs the gitea package,
-manages the gitea configuration file
-and then starts the associated gitea service.
+This installs Gitea,
+manages its configuration
+and then starts the ``gitea`` service.
 
 
 gitea.package
 ^^^^^^^^^^^^^
-This state will install the gitea package only.
+Installs Gitea only.
+
+Releases are downloaded from the official server by default
+and their signatures verified.
 
 
 gitea.config
 ^^^^^^^^^^^^
-This state will configure the gitea service
-and has a dependency on ``gitea.install`` via include list.
+Manages Gitea configuration.
+Has a dependency on `gitea.package`_.
 
 
 gitea.service
 ^^^^^^^^^^^^^
-This state will start the gitea service
-and has a dependency on ``gitea.config`` via include list.
+Starts the Gitea service and enables it at boot time.
+Has a dependency on `gitea.config`_.
 
 
 gitea.go
 ^^^^^^^^
-
+Creates a build user and downloads Go.
+Required for building Chroma.
 
 
 gitea.mods.rst
 ^^^^^^^^^^^^^^
+Compiles `Chroma <https://github.com/alecthomas/chroma>`_ from source
+and installs a Python script that can be setup as an external renderer
+for ``*.rst`` files.
 
+Has a dependency on `gitea.go`_.
 
 
 gitea.clean
@@ -134,29 +143,29 @@ Some paths are left to avoid accidental data loss
 
 gitea.package.clean
 ^^^^^^^^^^^^^^^^^^^
-This state will remove the gitea package and has a depency on
-``gitea.config.clean`` via include list.
+Removes Gitea.
+Has a dependency on `gitea.config.clean`_.
 
 
 gitea.config.clean
 ^^^^^^^^^^^^^^^^^^
-This state will remove the configuration of the gitea service and has a
-dependency on ``gitea.service.clean`` via include list.
+Removes Gitea configuration. Has a dependency on `gitea.service.clean`_.
 
 
 gitea.service.clean
 ^^^^^^^^^^^^^^^^^^^
-This state will stop the gitea service and disable it at boot time.
+Stops the gitea service and disables it at boot time.
 
 
 gitea.go.clean
 ^^^^^^^^^^^^^^
-
+Removes the build user and Go installation.
 
 
 gitea.mods.rst.clean
 ^^^^^^^^^^^^^^^^^^^^
-
+Removes the built ``chroma`` binary, the build path and the
+``grst`` script.
 
 
 

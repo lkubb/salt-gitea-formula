@@ -3,9 +3,9 @@
 {#-
   *Meta-state*.
 
-  This installs the gitea package,
-  manages the gitea configuration file
-  and then starts the associated gitea service.
+  This installs Gitea,
+  manages its configuration
+  and then starts the ``gitea`` service.
 #}
 
 include:
