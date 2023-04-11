@@ -102,7 +102,26 @@ class State:
         self.comment = str(comment)
         self.formula_root = formula_root
 
-    def to_state_id(self, include_init=True, relative_to="", split=False, formula_root=False):
+    def to_state_id(
+        self, include_init=True, relative_to="", split=False, formula_root=False
+    ):
+        """
+        Return this state's state ID.
+
+        include_init
+            If False, remove ``.init`` suffix. Defaults to True.
+
+        relative_to
+            Render the state ID relative to another state or file.
+
+        split
+            Return a tuple of parts instead of a string.
+
+        formula_root
+            If not using relative_to, include the formula's root
+            directory in the state ID (the actually correct one).
+            Defaults to False (for compatibility reasons).
+        """
         ret = self.path.with_suffix("")
 
         if not include_init and ret.parts[-1] == "init":
@@ -120,9 +139,15 @@ class State:
         return tuple(ret.split("."))
 
     def is_init(self):
+        """
+        Checks whether this is an ``.init`` state.
+        """
         return self.path.parts[-1] == "init.sls"
 
     def is_clean(self):
+        """
+        Checks whether this is a ``.clean`` state.
+        """
         return self.path.parts[-1] == "clean.sls"
 
     def __str__(self):
@@ -141,9 +166,17 @@ class StateRegistry:
     by some of the downstream classes.
     """
 
-    def __init__(self, reg=None, states=None, prefixes=None, default_sort_fn=None, avoid_init_dup=True, sort_list=None):
+    def __init__(
+        self,
+        data=None,
+        states=None,
+        prefixes=None,
+        default_sort_fn=None,
+        avoid_init_dup=True,
+        sort_list=None,
+    ):
         # nested dict
-        self.reg = reg or {}
+        self.reg = data or {}
         # flat dict with ptr to reg
         self.states = states or {}
         # flat dict with ptr to reg
@@ -152,7 +185,9 @@ class StateRegistry:
         # ensure no prefix lists the root
         self.prefixes[()] = self.reg
         self.avoid_init_dup = avoid_init_dup
-        self.sort_list = tuple(sort_list or ("init", "clean", "package", "config", "service"))
+        self.sort_list = tuple(
+            sort_list or ("init", "clean", "package", "config", "service")
+        )
 
     def _default_sort(self, a):
         """
@@ -192,12 +227,15 @@ class StateRegistry:
         if isinstance(ptr, State) or tree:
             return ptr
         # map init.sls same way as salt does
-        elif "init" in ptr:
+        if "init" in ptr:
             return ptr["init"]
 
         raise ValueError("State could not be found. Most likely, this is a prefix.")
 
     def register(self, state):
+        """
+        Register a state object.
+        """
         try:
             state_id = state.to_state_id(split=True)
         except AttributeError as err:
@@ -214,13 +252,16 @@ class StateRegistry:
                 ptr[cur] = state
                 break
             # make sure subdicts are initialized
-            elif cur not in ptr:
+            if cur not in ptr:
                 ptr[cur] = {}
                 self.prefixes[tuple(prefix)] = ptr[cur]
             ptr = ptr[cur]
         self.states[state_id] = ptr[cur]
 
     def unregister(self, state):
+        """
+        Unregister a state object.
+        """
         try:
             state_id = state.to_state_id(split=True)
         except AttributeError as err:
@@ -259,6 +300,9 @@ class StateRegistry:
         return 0
 
     def count(self):
+        """
+        Return the number of registered states.
+        """
         return len(self.states)
 
     def dump(self, prefix=None, sort_fn=None):
@@ -269,7 +313,7 @@ class StateRegistry:
         if isinstance(prefix, str):
             prefix = tuple(prefix.split("."))
         for state_id in sorted(self.states, key=sort_fn or self.default_sort_fn):
-            if state_id[:len(prefix)] == prefix:
+            if state_id[: len(prefix)] == prefix:
                 if self.avoid_init_dup and state_id[-1] not in ["init", "clean"]:
                     # given package.init, package.install and package.clean,
                     # only dump init and clean
@@ -318,7 +362,8 @@ The following states are found in {where}:
         """
         if not hasattr(self, "f"):
             raise ValueError(
-                "Sorry, you need to set self.f to a file pointer before calling self._write methods."
+                "Sorry, you need to set self.f to a file pointer "
+                "before calling self._write methods."
             )
         self.f.write(text + "\n" * ncount)
 
@@ -373,10 +418,12 @@ The following states are found in {where}:
         Returns a string to be used as the main description (after the main header).
         Looks up in the following order:
         1. If there is a documented root init.sls, return everything but its first line.
-           If it was found, unregister it to not render it twice (bad form again, maybe consider was_rendered on State)
+           If it was found, unregister it to not render it twice
+           (bad form again, maybe consider was_rendered on State)
         2. If a description was specified in opts, return that.
         3. general description
         """
+
         def get_default_desc():
             return self.opts["default_description"].format(
                 where=".".join(self.prefix) if self.prefix else "this formula"
@@ -433,11 +480,18 @@ class SingleRenderer(Renderer):
         "include_formula_root": True,
     }
 
-    def __init__(self, target="docs/states.rst", prefix=None, basedir=base_dir, **kwargs):
+    def __init__(
+        self, target="docs/states.rst", prefix=None, basedir=base_dir, **kwargs
+    ):
         if isinstance(target, str):
             target = Path(target)
         target = target.with_suffix(".rst")
-        super().__init__(target=target, prefix=prefix, basedir=basedir, opts=self.default_opts | kwargs)
+        super().__init__(
+            target=target,
+            prefix=prefix,
+            basedir=basedir,
+            opts=self.default_opts | kwargs,
+        )
 
     def render(self, states):
         relative_to = "/".join(self.prefix) if self.opts["cut_prefix"] else ""
@@ -452,11 +506,19 @@ class SingleRenderer(Renderer):
                     continue
                 if not self.opts["clean"] and state.is_clean():
                     continue
-                state_id = state.to_state_id(self.opts["init_suffix"], relative_to, formula_root=self.opts["include_formula_root"])
+                state_id = state.to_state_id(
+                    self.opts["init_suffix"],
+                    relative_to,
+                    formula_root=self.opts["include_formula_root"],
+                )
                 if state_id == ".":
                     continue
                 self._write_heading(
-                    state.to_state_id(self.opts["init_suffix"], relative_to, formula_root=self.opts["include_formula_root"])
+                    state.to_state_id(
+                        self.opts["init_suffix"],
+                        relative_to,
+                        formula_root=self.opts["include_formula_root"],
+                    )
                 )
                 self._write(state.comment, 3)
 
@@ -499,13 +561,22 @@ class DepthRenderer(Renderer):
             "clean": False,
             "cut_prefix": True,
             "include_formula_root": False,
-        }
+        },
     }
 
-    def __init__(self, max_depth=1, target="docs/states", delegate_cls=None, basedir=base_dir, **kwargs):
+    def __init__(
+        self,
+        max_depth=1,
+        target="docs/states",
+        delegate_cls=None,
+        basedir=base_dir,
+        **kwargs,
+    ):
         self.max_depth = max_depth
         self.delegate = delegate_cls or SingleRenderer
-        super().__init__(target=target, basedir=basedir, opts=self.default_opts | (kwargs or {}))
+        super().__init__(
+            target=target, basedir=basedir, opts=self.default_opts | (kwargs or {})
+        )
 
     def render(self, states):
         found = []
@@ -519,10 +590,9 @@ class DepthRenderer(Renderer):
             # This also goes not too well with rendering clean states
             # by default since they will be separate.
             if cur_top:
-                if prefix[:len(cur_top)] == cur_top:
+                if prefix[: len(cur_top)] == cur_top:
                     continue
-                else:
-                    cur_top = ()
+                cur_top = ()
             if states.depth(prefix) <= self.max_depth:
                 found.append(prefix)
                 cur_top = prefix
@@ -560,8 +630,10 @@ class DepthRenderer(Renderer):
 
     def _render_single(self, states, prefix):
         target = self._get_target(prefix)
-        renderer = self.delegate(target=target, prefix=prefix, **self.opts["single_opts"])
-        renderer.render(states)
+        rendr = self.delegate(
+            target=target, prefix=prefix, **self.opts["single_opts"]
+        )
+        rendr.render(states)
 
     def _render_index(self, states, indices, prefix=None):
         prefix = prefix or ()
@@ -571,12 +643,14 @@ class DepthRenderer(Renderer):
             self.prefix = prefix
             self._write_header(states)
             self.prefix = ()
-            f.write(f"""
+            f.write(
+                f"""
 .. toctree::
    :maxdepth: {self.opts['index_maxdepth']}
    :caption: Contents:
 
-""")
+"""
+            )
             for s in sorted(indices["_index"]):
                 f.write("   " + s + "\n")
         for sub in sorted(indices):
@@ -605,7 +679,15 @@ class SaltAutodoc:
 
     SKIP_FILE = "@internal"
 
-    def __init__(self, base=None, renderer=None, registry=None, env=None, include_empty=False, ignore=None):
+    def __init__(
+        self,
+        base=None,
+        rendr=None,
+        registry=None,
+        env=None,
+        include_empty=False,
+        ignore=None,
+    ):
         """
         base: base path containing Salt states to autodocument
         renderer: renderer to use for rendering
@@ -613,7 +695,7 @@ class SaltAutodoc:
         if base is None:
             base = list(base_dir.glob("*/init.sls"))[0].parent
         self.base = base
-        self.renderer = renderer or SingleRenderer()
+        self.renderer = rendr or SingleRenderer()
         self.env = env or Environment()
         self.registry = registry or StateRegistry()
         self.include_empty = include_empty
@@ -633,12 +715,14 @@ class SaltAutodoc:
                 text = "".join(f.readlines())
             try:
                 comment = self.find_comment(text)
-            except TemplateSyntaxError as e:
+            except TemplateSyntaxError as err:
                 raise RuntimeError(
-                    f"There was an error parsing the Jinja syntax in file '{file}':\n\n{e}"
-                )
+                    f"There was an error parsing the Jinja syntax in file '{file}':\n\n{err}"
+                ) from err
 
-            if (comment or self.include_empty) and not comment.startswith(self.SKIP_FILE):
+            if (comment or self.include_empty) and not comment.startswith(
+                self.SKIP_FILE
+            ):
                 path = file.relative_to(self.base)
                 self.registry.register(State(path, comment, self.base.name))
 
@@ -676,12 +760,16 @@ class SaltAutodoc:
         docutils.prepare_docstring.
         """
         # return d.prepare_docstring(comment)
-        ws = min([len(x) - len(x.lstrip()) for x in comment.splitlines() if len(x) > 0])
+        ws = min(len(x) - len(x.lstrip()) for x in comment.splitlines() if len(x) > 0)
         return "\n".join([x[ws:] for x in comment.splitlines()]).strip("\n")
 
 
 if __name__ == "__main__":
-    options = toml.loads((base_dir / "pyproject.toml").read_text()).get("tool", {}).get("slsdoc", {})
+    options = (
+        toml.loads((base_dir / "pyproject.toml").read_text())
+        .get("tool", {})
+        .get("slsdoc", {})
+    )
     renderer = options.get("renderer", "single")
 
     if renderer == "single":
@@ -691,6 +779,14 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Invalid value for renderer: {renderer}")
 
-    registry = StateRegistry(avoid_init_dup=options.get("avoid_init_dup", True), sort_list=options.get("sort_list"))
-    doc = SaltAutodoc(renderer=rend, registry=registry, include_empty=options.get("include_empty", False), ignore=options.get("ignore", ["_mapdata"]))
+    reg = StateRegistry(
+        avoid_init_dup=options.get("avoid_init_dup", True),
+        sort_list=options.get("sort_list"),
+    )
+    doc = SaltAutodoc(
+        rendr=rend,
+        registry=reg,
+        include_empty=options.get("include_empty", False),
+        ignore=options.get("ignore", ["_mapdata"]),
+    )
     doc.run()

@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/lkubb/salt-template-formula",
-  "commit": "c33be7342f32db2e215f929e5a51a690ed445c11",
+  "commit": "a63c03d95375f235c2d4a6159a26ae48d4fdc40b",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -25,7 +25,7 @@
       "subcomponent": "",
       "subcomponent_config": "",
       "git_username": "lkubb",
-      "_lookup": {
+      "lookup": {
         "paths": {
           "bin": "/opt/gitea",
           "conf": "/etc/gitea",
@@ -75,7 +75,7 @@
           "path": "/usr/local/bin/grst"
         }
       },
-      "_settings": {
+      "settings": {
         "version": "latest",
         "service": {
           "requires_mount": [],

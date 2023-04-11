@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
 {#-
@@ -9,9 +8,9 @@
     Has a dependency on `gitea.go`_.
 #}
 
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- set sls_config_file = tplroot ~ '.config.file' %}
-{%- set sls_go_install = tplroot ~ '.go' %}
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- set sls_config_file = tplroot ~ ".config.file" %}
+{%- set sls_go_install = tplroot ~ ".go" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as gitea with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
@@ -60,9 +59,9 @@ Chroma is installed:
 RST external renderer is installed:
   file.managed:
     - name: {{ gitea.lookup.mod_rst.path }}
-    - source: {{ files_switch(['grst'],
+    - source: {{ files_switch(["grst"],
                               use_subpath=True,
-                              lookup='RST external renderer is installed'
+                              lookup="RST external renderer is installed"
                  )
               }}
     - mode: '0755'

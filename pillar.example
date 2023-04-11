@@ -139,6 +139,6 @@ gitea:
       # The entries under `source_files` are prepended to the default source files
       # given for the state
     source_files:
-      gitea-config-file-file-managed:
+      Gitea configuration is managed:
         - 'app_alt.ini'
         - 'app_alt.ini.jinja'

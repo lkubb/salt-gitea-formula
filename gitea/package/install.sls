@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
+{%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as gitea with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
@@ -112,7 +111,7 @@ Gitea binary is absent if verification failed:
 Gitea directories are setup:
   file.directory:
     - names:
-{%- for p in ['conf', 'work', 'custom', 'data', 'log', 'repos'] %}
+{%- for p in ["conf", "work", "custom", "data", "log", "repos"] %}
       - {{ gitea.lookup.paths[p] }}
 {%- endfor %}
     - makedirs: true
@@ -123,7 +122,7 @@ Gitea directories are setup:
 
 Gitea binary is installed:
   file.copy:
-    - name: {{ gitea.lookup.paths.bin | path_join('gitea') }}
+    - name: {{ gitea.lookup.paths.bin | path_join("gitea") }}
     - source: /tmp/gitea-{{ gitea.version }}
     # in case the version changed, overwrite previous binary
     - force: true
@@ -141,15 +140,15 @@ Gitea service unit is available:
   file.managed:
     - name: {{ gitea.lookup.service.unit.format(name=gitea.lookup.service.name) }}
     - source: {{ files_switch(
-                    ['gitea.service.j2'],
-                    lookup='Gitea service unit is available',
+                    ["gitea.service.j2"],
+                    lookup="Gitea service unit is available",
                   ) }}
     - template: jinja
     - mode: '0644'
     - user: root
     - group: {{ gitea.lookup.rootgroup }}
     - makedirs: true
-    - context: {{ {'gitea': gitea} | json }}
+    - context: {{ {"gitea": gitea} | json }}
     - require:
       - Gitea binary is installed
 {%- if 'systemctl' | which %}
