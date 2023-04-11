@@ -151,13 +151,6 @@ Gitea service unit is available:
     - context: {{ {"gitea": gitea} | json }}
     - require:
       - Gitea binary is installed
-{%- if 'systemctl' | which %}
-  # this executes systemctl daemon-reload
-  module.run:
-    - service.systemctl_reload: []
-    - onchanges:
-      - file: {{ gitea.lookup.service.unit.format(name=gitea.lookup.service.name) }}
-{%- endif %}
 
 Gitea setup is finished:
   test.show_notification:
