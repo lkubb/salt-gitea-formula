@@ -3,7 +3,7 @@
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- set sls_package_install = tplroot ~ ".package.install" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as gitea with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 include:
   - {{ sls_package_install }}
@@ -25,8 +25,10 @@ Gitea internal token file is generated:
 Gitea configuration is managed:
   file.managed:
     - name: {{ gitea.lookup.paths.conf | path_join("app.ini") }}
-    - source: {{ files_switch(["app.ini", "app.ini.j2"],
-                              lookup="Gitea configuration is managed"
+    - source: {{ files_switch(
+                    ["app.ini", "app.ini.j2"],
+                    config=gitea,
+                    lookup="Gitea configuration is managed"
                  )
               }}
     - template: jinja
