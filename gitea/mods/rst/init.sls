@@ -12,7 +12,7 @@
 {%- set sls_config_file = tplroot ~ ".config.file" %}
 {%- set sls_go_install = tplroot ~ ".go" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as gitea with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 include:
   - {{ sls_go_install }}
@@ -59,9 +59,11 @@ Chroma is installed:
 RST external renderer is installed:
   file.managed:
     - name: {{ gitea.lookup.mod_rst.path }}
-    - source: {{ files_switch(["grst"],
-                              use_subpath=True,
-                              lookup="RST external renderer is installed"
+    - source: {{ files_switch(
+                    ["grst"],
+                    config=gitea,
+                    use_subpath=True,
+                    lookup="RST external renderer is installed",
                  )
               }}
     - mode: '0755'

@@ -2,7 +2,7 @@
 
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as gitea with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 Gitea user/group is present:
   user.present:
@@ -140,9 +140,11 @@ Gitea service unit is available:
   file.managed:
     - name: {{ gitea.lookup.service.unit.format(name=gitea.lookup.service.name) }}
     - source: {{ files_switch(
-                    ["gitea.service.j2"],
+                    ["gitea.service", "gitea.service.j2"],
+                    config=gitea,
                     lookup="Gitea service unit is available",
-                  ) }}
+                  )
+              }}
     - template: jinja
     - mode: '0644'
     - user: root
