@@ -13,8 +13,4 @@
 values:
   lookup:
     pkg_manager: apt
-    requirements:
-      - git
-      - gpg
-      - python3-gnupg
 ...

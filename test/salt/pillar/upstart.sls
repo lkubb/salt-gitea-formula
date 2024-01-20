@@ -46,7 +46,6 @@ gitea:
     requirements:
       - git
       - gpg
-      - python-gnupg
     shell: /bin/bash
     user: git
   config:

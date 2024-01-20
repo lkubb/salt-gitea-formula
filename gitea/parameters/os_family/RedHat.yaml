@@ -13,4 +13,7 @@
 values:
   lookup:
     pkg_manager: yum
+    requirements:
+      - gnupg2
+      - git
 ...

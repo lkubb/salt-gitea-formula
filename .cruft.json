@@ -38,8 +38,7 @@
         },
         "requirements": [
           "git",
-          "gpg",
-          "python-gnupg"
+          "gpg"
         ],
         "build_user": "giteabuild",
         "build_user_home": "/home/giteabuild",
