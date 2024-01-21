@@ -24,6 +24,7 @@ RST external renderer pkg dependencies are installed:
 RST external renderer pip dependencies are installed:
   pip.installed:
     - names: {{ gitea.lookup.mod_rst.pip_dependencies | json }}
+    - bin_env: __slot__:salt:cmd.which('pip')
     - require:
       - RST external renderer pkg dependencies are installed
 

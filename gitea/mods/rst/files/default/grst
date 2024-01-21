@@ -3,7 +3,7 @@
 import subprocess
 import sys
 
-from docutils import nodes, core, io
+from docutils import nodes, core
 from docutils.parsers.rst import directives, Directive
 
 
