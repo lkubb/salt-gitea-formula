@@ -22,92 +22,6 @@ Gitea user/group is present:
     - system: true
 {%- endif %}
 
-Requirements for managing Gitea are fulfilled:
-  pkg.installed:
-    - pkgs: {{ gitea.lookup.requirements | json }}
-  # needed to avoid exception when running gpg.get_key in unless below
-  cmd.run:
-    - name: gpg --list-keys
-    - unless:
-      - test -d "${GNUPG_HOME:-$HOME/.gnupg}"
-      # the above does not work somehow
-      - test -d /root/.gnupg
-
-Gitea is available:
-  file.managed:
-    - names:
-      - /tmp/gitea-{{ gitea.version }}:
-        - source: {{ gitea.lookup.pkg.source.format(version=gitea.version, arch=gitea.lookup.arch) }}
-        - source_hash: {{ gitea.lookup.pkg.source_hash.format(version=gitea.version, arch=gitea.lookup.arch) }}
-      - /tmp/gitea-{{ gitea.version }}.asc:
-        - source: {{ gitea.lookup.pkg.sig.format(version=gitea.version, arch=gitea.lookup.arch) }}
-        - skip_verify: true
-    - user: {{ gitea.lookup.user }}
-    - group: {{ gitea.lookup.group }}
-
-Gitea GPG key is present (received from keyserver):
-  gpg.present:
-    - name: {{ gitea.lookup.gpg.key[-16:] }}
-    - keyserver: {{ gitea.lookup.gpg.keyserver }}
-
-Gitea GPG key is present (fallback):
-  file.managed:
-    - name: /tmp/gitea-key.asc
-    - source: salt://gitea/files/default/key.asc
-    - onfail:
-      - Gitea GPG key is present (received from keyserver)
-  module.run:
-    - gpg.import_key:
-      - filename: /tmp/gitea-key.asc
-    - onfail:
-      - Gitea GPG key is present (received from keyserver)
-    - require:
-      - file: /tmp/gitea-key.asc
-
-{%- if "gpg" not in salt["saltutil.list_extmods"]().get("states", []) %}
-
-# Ensure the following does not run without the key being present.
-# The official gpg modules are currently big liars and always report
-# `Yup, no worries! Everything is fine.`
-Gitea key is actually present:
-  module.run:
-    - gpg.get_key:
-      - fingerprint: {{ gitea.lookup.gpg.key }}
-{%- endif %}
-
-
-{%- if "gpg" not in salt["saltutil.list_extmods"]().get("states", []) %}
-
-Gitea is verified:
-  test.configurable_test_state:
-    - name: Check if the downloaded binary has been signed by the release key
-    - changes: False
-    - result: >
-        __slot__:salt:gpg.verify(filename=/tmp/gitea-{{ gitea.version }},
-        signature=/tmp/gitea-{{ gitea.version }}.asc).res
-    - require:
-      - Gitea is available
-      - Gitea key is actually present
-{%- else %}
-
-Gitea is verified:
-  gpg.verified:
-    - name: /tmp/gitea-{{ gitea.version }}
-    - signature: /tmp/gitea-{{ gitea.version }}.asc
-    - signed_by_any: {{ gitea.lookup.gpg.key }}
-    - require:
-      - Gitea is available
-    - require_any:
-      - Gitea GPG key is present (received from keyserver)
-      - Gitea GPG key is present (fallback)
-{%- endif %}
-
-Gitea binary is absent if verification failed:
-  file.absent:
-    - name: /tmp/gitea-{{ gitea.version }}
-    - onfail:
-      - Gitea is verified
-
 Gitea directories are setup:
   file.directory:
     - names:
@@ -119,22 +33,40 @@ Gitea directories are setup:
     - group: {{ gitea.lookup.group }}
     # This prevents the web-installer from functioning, would need 0770 on /etc/gitea.
     - mode: '0750'
+    - require:
+      - Gitea user/group is present
+
+Requirements for managing Gitea are fulfilled:
+  pkg.installed:
+    - pkgs: {{ gitea.lookup.requirements | json }}
+
+Gitea GPG key is present:
+  gpg.present:
+    - name: {{ gitea.lookup.gpg.key[-16:] }}
+    - keyserver: {{ gitea.lookup.gpg.keyserver }}
+    - source: {{ files_switch(
+                    ["key.asc"],
+                    config=gitea,
+                    lookup="Gitea GPG key is present",
+                  )
+              }}
+    - require:
+      - Requirements for managing Gitea are fulfilled
 
 Gitea binary is installed:
-  file.copy:
+  file.managed:
     - name: {{ gitea.lookup.paths.bin | path_join("gitea") }}
-    - source: /tmp/gitea-{{ gitea.version }}
-    # in case the version changed, overwrite previous binary
-    - force: true
+    - source: {{ gitea.lookup.pkg.source.format(version=gitea.version, arch=gitea.lookup.arch) }}
+    - source_hash: {{ gitea.lookup.pkg.source_hash.format(version=gitea.version, arch=gitea.lookup.arch) }}
+    - signature: {{ gitea.lookup.pkg.sig.format(version=gitea.version, arch=gitea.lookup.arch) }}
+    - signed_by_any: {{ gitea.lookup.gpg.key | json }}
     - makedirs: true
     - user: {{ gitea.lookup.user }}
     - group: {{ gitea.lookup.group }}
     - mode: '0755'
-    # only run if a new version was downloaded
-    - onchanges:
-      - Gitea is available
     - require:
-      - Gitea is verified
+      - Gitea GPG key is present
+      - Gitea user/group is present
 
 Gitea service unit is available:
   file.managed:

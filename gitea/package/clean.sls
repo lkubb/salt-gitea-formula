@@ -21,8 +21,6 @@ Gitea package files are absent:
 {%- for p in ["conf", "custom", "log"] %}
       - {{ gitea.lookup.paths[p] }}
 {%- endfor %}
-      # to make sure this can be installed again (onchanges req in package.installed)
-      - /tmp/gitea-{{ gitea.version }}
     - require:
       - sls: {{ sls_config_clean }}
 
